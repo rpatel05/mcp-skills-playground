@@ -1,8 +1,21 @@
+---
+name: analyze-feedback
+description: Synthesize customer feedback from multiple sources and surface actionable themes correlated with product usage data.
+---
+
 # analyze-feedback
 
-**Description**: Synthesize customer feedback from multiple sources and surface actionable themes correlated with product usage data.
+> **⚠️ Data Requirement**: This skill requires external customer feedback data (support tickets, NPS responses, user interviews, feature requests). The Mixpanel MCP server does NOT directly access support systems like Zendesk, Intercom, ProductBoard, or Canny.
+>
+> **How to provide feedback data:**
+> - Export CSV from your support system and paste the content
+> - Share a text file with feedback entries
+> - Copy/paste feedback directly into the conversation
+> - Provide a summary of feedback themes you've already identified
+>
+> The skill will help categorize, prioritize, and correlate this feedback with Mixpanel usage data.
 
-**When to use this skill**: When users want to understand qualitative feedback patterns, connect support tickets to product behavior, or identify product gaps mentioned by customers.
+**When to use this skill**: When you have customer feedback data and want to understand patterns and correlate them with product behavior in Mixpanel.
 
 ---
 

@@ -153,15 +153,61 @@ List cohorts from Lexicon or query
 
 4. **Build query** using discovered event names
 
-5. **Run query:**
+5. **Build and run query**
+
+**For simple queries** (single event, no breakdowns/filters):
 ```
-Mixpanel:Run-Query with full query definition
+Mixpanel:Run-Query(
+  project_id=X,
+  report_type='insights',
+  report={
+    "name": "DAU Last 7 Days",
+    "metrics": [
+      {
+        "eventName": "$ae_session",
+        "measurement": {"type": "basic", "math": "unique"}
+      }
+    ],
+    "chartType": "line",
+    "unit": "day",
+    "dateRange": {"type": "relative", "range": {"unit": "day", "value": 7}}
+  }
+)
 ```
+
+**For complex queries** (breakdowns, filters, formulas, multiple metrics):
+
+1. **First, get the full schema:**
+   ```
+   Mixpanel:Get-Query-Schema(report_type='insights')
+   ```
+   This returns the complete JSON schema showing all available options
+
+2. **Build your query using the schema:**
+   - Use `breakdown` for segmentation by property
+   - Use `filters` for event-level or global filtering
+   - Use `comparison` for time period comparisons
+   - Use `formula` for custom calculations
+   - Check schema for exact property names and structure
+
+3. **Run the query:**
+   ```
+   Mixpanel:Run-Query(
+     project_id=X,
+     report_type='insights',
+     report={...full query following schema...}
+   )
+   ```
+
+**Using skip_results:**
+- Add `skip_results=true` if you only need the query_id (e.g., for dashboards)
+- Omit or set to `false` if you want the actual data results
 
 6. **Verify results** - check data makes sense
 
 7. **Save to board (optional):**
-Can be added to an existing board later
+   - If you used skip_results=true, you already have the query_id
+   - Can be added to an existing or new board using Create-Dashboard
 
 ## Error Handling
 

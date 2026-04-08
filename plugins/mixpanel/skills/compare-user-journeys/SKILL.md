@@ -1,85 +1,198 @@
 ---
 name: compare-user-journeys
-description: Side-by-side comparison of two user groups (converted vs. churned, power users vs. casual, etc.) to surface behavioral differences and identify what drives success
+description: Compare behavioral paths between two user segments (e.g., converters vs. churners, power users vs. casual) to identify what differentiates successful users.
 ---
 
-# compare-user-journeys
-
-Compare behavioral patterns between two user segments.
+# Compare User Journeys
 
 ## When to Use
 
-- Understanding what converts users
-- Identifying power user behaviors
-- Investigating why users churn
-- Finding activation patterns
+- Understand why some users convert and others don't
+- Identify behaviors that predict retention or churn
+- Find what makes power users different from average users
+- Debug why a specific cohort or segment underperforms
 
-## Input
+## Instructions
 
-**Segment A:** (e.g., "Users who converted")
-- Cohort ID or filter criteria
+### Step 1: Define Segments to Compare
 
-**Segment B:** (e.g., "Users who didn't convert")
-- Cohort ID or filter criteria
+Ask the user which segments to compare. Common comparisons:
+- **Converters vs. non-converters** (free trial → paid)
+- **Retained vs. churned** (active after 30 days vs. not)
+- **Power users vs. casual users** (top 10% engagement vs. median)
+- **High LTV vs. low LTV** (revenue-based segments)
+- **Activated vs. not activated** (completed onboarding vs. dropped off)
 
-**Time period:** Date range to analyze
+### Step 2: Define Journey Window
 
-## Analysis Steps
+- **Time window**: First 7 days? First 30 days? Last 90 days?
+- **Key outcome event**: What defines "success"? (e.g., "Purchase Completed", "Day 7 Active")
 
-### Step 1: Get Behavioral Data
+### Step 2.5: Define Segment Filters
 
-For each segment:
-- Top events performed
-- Event frequency
-- Time to key milestones
-- Feature adoption
+If comparing segments that don't exist as saved cohorts in Mixpanel, define them using query filters:
 
-### Step 2: Identify Differences
+**Common segment definitions:**
 
-Compare:
-- Events unique to one segment
-- Frequency differences (Segment A does X 5x more)
-- Sequence patterns
-- Time-to-value differences
+**Converters vs. Non-converters:**
+- Segment A (Converters): Users who did "Purchase Completed" in time window
+- Segment B (Non-converters): Users who did NOT do "Purchase Completed"
+- Implementation: Use separate queries with event filters
 
-### Step 3: Find Correlations
+**Power users vs. Casual users:**
+- Segment A (Power): Users with high engagement (e.g., 20+ sessions in 30 days)
+- Segment B (Casual): Users with low engagement (e.g., <5 sessions in 30 days)
+- Implementation: Filter by user profile property or event frequency
 
-What behaviors predict success:
-- Leading indicators (happen before conversion)
-- Magnitude of difference
-- Statistical significance
+**Retained vs. Churned:**
+- Segment A (Retained): Users who returned (did return event in retention window)
+- Segment B (Churned): Users who didn't return
+- Implementation: Use retention query or event occurrence filters
 
-## Output Format
+**How to apply segment filters in queries:**
 
-**User Journey Comparison**
+For event-based segments:
+```
+report={
+  "metrics": [...],
+  "filters": [
+    {
+      "property": "event_name",
+      "operator": "equals",
+      "value": "Purchase Completed"
+    }
+  ]
+}
+```
 
-**Segment A:** [Description] (N=[count])
-**Segment B:** [Description] (N=[count])
+For user profile segments:
+```
+report={
+  "where": "user[\"plan_type\"] == \"paid\""
+}
+```
 
-**Key Behavioral Differences**
+For behavioral segments (did/didn't do event):
+- Run separate queries for each segment
+- One with the event present, one without
+- Compare the results side-by-side
 
+**Pro tip:** If these segments will be used frequently, ask the user to create saved cohorts in Mixpanel first, then reference them by cohort ID in queries.
+
+### Step 3: Query Both Segments
+
+For each segment, get:
+
+**Behavioral data:**
+- Top 10 most common events
+- Event frequency (events per user)
+- Event sequences (which events happen before the outcome)
+- Feature adoption (which features do they use)
+
+**Timing data:**
+- Time to first key action
+- Session frequency
+- Days active in the window
+
+Use Mixpanel queries:
+- `Mixpanel:Run-Query` with segment filters
+- Flow analysis to see paths
+- Funnel analysis for conversion steps
+
+### Step 4: Identify Differentiators
+
+Compare the segments to find:
+
+**Behavioral differences:**
+- Events that one group does significantly more (2x+ difference)
+- Events unique to one group
+- Features heavily used by one group but not the other
+
+**Timing differences:**
+- How quickly do they take key actions?
+- How frequently do they engage?
+- Do they use the product in bursts or consistently?
+
+**Path differences:**
+- Do successful users follow a specific sequence?
+- Where do unsuccessful users drop off?
+
+### Step 5: Present Findings
+
+Structure output as:
+
+**Segment Comparison: [Segment A] vs [Segment B]**
+
+**Key Differentiators**
 | Behavior | Segment A | Segment B | Difference |
 |----------|-----------|-----------|------------|
-| [Event/Pattern] | [Metric] | [Metric] | [%] |
+| Feature X usage | 80% | 20% | **4x higher** |
+| Time to first action | 2 hours | 3 days | **36x faster** |
+| Sessions per week | 5.2 | 1.3 | **4x more frequent** |
 
-**Unique to Segment A:**
-- [Behavior]: [Frequency/pattern]
+**Unique to Segment A** (successful users):
+- Event X (used by 70% of Segment A, 5% of Segment B)
+- Event Y (used by 60% of Segment A, 10% of Segment B)
 
-**Unique to Segment B:**
-- [Behavior]: [Frequency/pattern]
+**Unique to Segment B** (unsuccessful users):
+- Event Z (error or friction signal)
 
-**Leading Indicators of Success**
-1. [Behavior]: [Evidence]
-2. [Behavior]: [Evidence]
+**Recommended Actions**
+1. Guide more users to [key differentiator behavior]
+2. Reduce friction around [drop-off point]
+3. Highlight [underused feature] to [unsuccessful segment]
 
-**Recommendations**
-1. [Drive behavior X to increase conversion]
-2. [Reduce behavior Y to prevent churn]
+**Supporting Data**
+- Include flow diagrams showing path differences
+- Link to Mixpanel reports for each segment
+
+## Example Interaction
+
+**User**: "Why do some trial users convert and others don't?"
+
+**Assistant**:
+1. Asks: "What's your trial length and what defines conversion?"
+2. User says: "14-day trial, conversion = upgraded to paid"
+3. Runs queries:
+   - Segment A: Users who converted (last 90 days)
+   - Segment B: Users who didn't convert (last 90 days)
+   - Compares events, features, timing
+4. Finds differentiators:
+   - **Converters use "Export" feature 5x more** (80% vs 15%)
+   - **Converters invite teammates 3x more** (60% vs 20%)
+   - **Converters hit "wow moment" within 48h** (median: 1 day vs 8 days)
+5. Outputs:
+   - **High priority**: Accelerate time to "wow moment" (onboarding flow)
+   - **Medium**: Encourage Export feature trial (add tooltip, email)
+   - **Low**: Prompt team invites earlier (could drive virality)
+
+## Common Journey Comparisons
+
+**Trial converters vs. non-converters**
+- What features drive conversion?
+- When do converters realize value?
+- What blockers prevent conversion?
+
+**Retained vs. churned**
+- What habits do retained users form?
+- Where do churned users disengage?
+- What's the "point of no return" (predict churn)?
+
+**Power users vs. casual**
+- What makes someone a power user?
+- Can casual users be activated into power users?
+- What features unlock high engagement?
+
+**High LTV vs. low LTV**
+- Which features correlate with revenue?
+- Do high LTV users have different onboarding?
+- What expansion behaviors exist?
 
 ## Best Practices
 
-- Ensure sample sizes are adequate (100+ users)
-- Look for *actionable* differences
-- Distinguish correlation from causation
-- Segment by acquisition source if relevant
-- Include statistical significance
+- **Use large enough samples** (100+ users per segment for confidence)
+- **Control for time** (compare users in same time window)
+- **Look for causal patterns** (not just correlation)
+- **Focus on early behaviors** (leading indicators, not lagging)
+- **Quantify differences** (2x, 5x, 10x — not just "higher")
+- **Suggest experiments** (test whether guiding users to do X improves outcomes)
