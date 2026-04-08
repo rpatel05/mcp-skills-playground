@@ -1,0 +1,43 @@
+{
+  "name": "mixpanel",
+  "owner": {
+    "name": "Rishi Patel",
+    "email": "rishi@mixpanel.com"
+  },
+  "metadata": {
+    "description": "Mixpanel analytics plugins for AI coding agents",
+    "version": "0.0.1"
+  },
+  "plugins": [
+    {
+      "name": "mixpanel",
+      "source": "./plugins/mixpanel",
+      "strict": false,
+      "description": "Use Mixpanel as an expert analyst - instrument Mixpanel, discover product opportunities, analyze reports, create boards, manage experiments, and understand users",
+      "version": "1.0.0",
+      "author": {
+        "name": "Rishi Patel"
+      },
+      "homepage": "https://github.com/rpatel05/mcp-marketplace",
+      "repository": "https://github.com/rpatel05/mcp-marketplace",
+      "license": "MIT",
+      "keywords": [
+        "analytics",
+        "mixpanel",
+        "reports",
+        "boards",
+        "feedback",
+        "analysis",
+        "instrumentation",
+        "tracking",
+        "lexicon",
+        "data-governance",
+        "daily-brief",
+        "weekly-brief",
+        "monitor-experiments",
+        "discover-opportunities"
+      ],
+      "category": "analytics"
+    }
+  ]
+}
