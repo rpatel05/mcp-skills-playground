@@ -1,0 +1,71 @@
+name: Auto Version Bump
+
+on:
+  pull_request:
+    types: [closed]
+    paths:
+      - 'plugins/**'
+
+jobs:
+  bump-version:
+    if: github.event.pull_request.merged == true
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 0
+
+      - name: Detect changed plugins
+        id: changed
+        run: |
+          changed_plugins=$(git diff --name-only ${{ github.event.pull_request.base.sha }} ${{ github.event.pull_request.merge_commit_sha }} \
+            | grep '^plugins/' \
+            | cut -d'/' -f2 \
+            | sort -u)
+          echo "plugins=$changed_plugins" >> "$GITHUB_OUTPUT"
+
+      - name: Bump patch version
+        run: |
+          for plugin in ${{ steps.changed.outputs.plugins }}; do
+            for manifest in \
+              "plugins/$plugin/.claude-plugin/plugin.json" \
+              "plugins/$plugin/.cursor-plugin/plugin.json" \
+              "plugins/$plugin/.codex-plugin/plugin.json"; do
+              if [ -f "$manifest" ]; then
+                current=$(jq -r '.version' "$manifest")
+                IFS='.' read -r major minor patch <<< "$current"
+                new_version="$major.$minor.$((patch + 1))"
+                jq --arg v "$new_version" '.version = $v' "$manifest" > tmp.json && mv tmp.json "$manifest"
+                echo "Bumped $manifest: $current -> $new_version"
+              fi
+            done
+
+            # Bump root marketplace manifests
+            for root_manifest in \
+              ".claude-plugin/marketplace.json" \
+              ".cursor-plugin/marketplace.json" \
+              ".agents/plugins/marketplace.json"; do
+              if [ -f "$root_manifest" ]; then
+                jq --arg name "$plugin" --arg v "$new_version" \
+                  '(.plugins[] | select(.name == $name)).version = $v' \
+                  "$root_manifest" > tmp.json && mv tmp.json "$root_manifest"
+                echo "Updated $root_manifest for $plugin -> $new_version"
+              fi
+            done
+          done
+
+      - name: Commit version bump
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add -A
+          if git diff --cached --quiet; then
+            echo "No version changes to commit"
+          else
+            git commit -m "chore: bump plugin versions after #${{ github.event.pull_request.number }}"
+            git push
+          fi

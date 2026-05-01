@@ -24,6 +24,7 @@ Expert product analytics skills for Mixpanel. This plugin provides comprehensive
 ### Data Governance
 - **audit-lexicon**: Review Lexicon for data quality issues
 - **update-lexicon**: Bulk update event and property metadata
+- **taxonomy**: Generate and enforce event/property naming conventions
 
 ### Session Replay
 - **debug-replay**: Convert bug reports into numbered repro steps

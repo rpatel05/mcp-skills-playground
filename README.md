@@ -1,267 +1,235 @@
-# Mixpanel MCP Marketplace
+# Mixpanel MCP Skills Playground
 
-**Reference library of workflow patterns and skills for using Mixpanel with AI coding assistants.**
+**Workflow patterns and skills for using Mixpanel with AI coding assistants.**
 
-This repository provides battle-tested analysis and instrumentation workflows for [Mixpanel](https://mixpanel.com) users working with AI coding assistants like **Claude Code**, **Cursor**, and **Claude**.
-
-> **Note**: This is a reference/template library, not an installable plugin system. Skills must be manually copied to your local environment (see [Quick Start](#quick-start) below).
+This repository provides analysis and instrumentation skills for [Mixpanel](https://mixpanel.com) users working with AI coding assistants — **Claude Code**, **Cursor**, **Codex**, and other MCP-compatible clients.
 
 ---
 
 ## What's Inside
 
-| Plugin                            | Description                                                                                                                                                               |
-| --------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| [mixpanel](./plugins/mixpanel/) | Reusable analysis and instrumentation skills covering reports, boards, experiments, session replays, data governance, and analytics tracking workflows |
-
----
-
-## Mixpanel Plugin
-
-The mixpanel plugin turns your AI assistant into an expert product analyst and instrumentation partner. Skills are organized into seven areas:
-
-### Core Analytics
-
-| Skill               | What it does                                                                 |
-| ------------------- | ---------------------------------------------------------------------------- |
-| `create-report`      | Creates Mixpanel reports (Insights, Funnels, Flows, etc.) from natural language descriptions                  |
-| `create-board`  | Builds boards from requirements, organizing reports into logical sections |
-| `analyze-report`     | Deep-dives a report to explain trends, anomalies, and likely drivers          |
-| `analyze-board` | Reviews a board end-to-end, surfacing key takeaways and areas of concern |
-
-### Product Insights
-
-| Skill                    | What it does                                                                                   |
-| ------------------------ | ---------------------------------------------------------------------------------------------- |
-| `analyze-experiment`     | Designs A/B tests, monitors running experiments, and interprets results                        |
-| `monitor-experiments`    | Triages all active and recently completed experiments by importance                            |
-| `analyze-feedback`       | Synthesizes customer feedback into themes — feature requests, bugs, pain points, praise        |
-| `discover-opportunities` | Finds product opportunities by cross-referencing analytics, experiments, replays, and feedback |
-| `compare-user-journeys`  | Compares two user groups side-by-side to surface behavioral differences                        |
-
-### Session Replay & Debugging
-
-| Skill                 | What it does                                                                                                  |
-| --------------------- | ------------------------------------------------------------------------------------------------------------- |
-| `debug-replay`        | Turns bug reports into numbered reproduction steps by extracting the interaction timeline from Session Replay |
-| `replay-ux-audit`     | Watches multiple session replays for a flow and synthesizes a ranked friction map                             |
-
-### Analytics Instrumentation
-
-| Skill                           | What it does                                                                                                  |
-| ------------------------------- | ------------------------------------------------------------------------------------------------------------- |
-| `diff-intake`                   | Reads a PR or branch diff and outputs a structured `change_brief` YAML for downstream skills                  |
-| `discover-event-surfaces`       | From a change brief, lists candidate analytics events for PM prioritization                                   |
-| `discover-analytics-patterns`   | Maps how analytics is already implemented in the repo (SDK calls, naming, imports)                            |
-| `instrument-events`             | From prioritized event candidates, builds a concrete instrumentation plan and JSON tracking plan              |
-| `add-analytics-instrumentation` | End-to-end workflow — reads code, decides what to track, and produces a full instrumentation plan in one pass |
-
-A typical flow: `diff-intake` → `discover-event-surfaces` → `instrument-events`, with `discover-analytics-patterns` ensuring new tracking matches existing conventions.
-
-### Data Governance
-
-| Skill          | What it does                                                                  |
-| -------------- | ----------------------------------------------------------------------------- |
-| `audit-lexicon`  | Reviews Lexicon for data quality issues, missing descriptions, and inconsistencies |
-| `update-lexicon` | Bulk updates event/property descriptions and tags in Lexicon |
-
-### Briefings
-
-| Skill          | What it does                                                                  |
-| -------------- | ----------------------------------------------------------------------------- |
-| `daily-brief`  | Morning briefing of the most important changes across your Mixpanel instance |
-| `weekly-brief` | Weekly recap of trends, wins, and risks to share with your team or leadership |
+| Plugin                          | Description                                                                                       |
+| ------------------------------- | ------------------------------------------------------------------------------------------------- |
+| [mixpanel](./plugins/mixpanel/) | Analysis, instrumentation, and data governance skills covering reports, boards, experiments, replays, taxonomy, and more |
 
 ---
 
 ## Quick Start
 
-### Prerequisites
+### 1. Install the Mixpanel MCP Server
 
-1. **Install the Mixpanel MCP Server** (required for all skills to function):
+<details>
+<summary><strong>Claude Code</strong></summary>
 
-**Claude Code:**
-- Add to your MCP settings or use Claude Code's MCP configuration
-- Complete the OAuth flow when prompted
+```bash
+claude mcp add mixpanel -- npx -y @mixpanel/mcp-server
+```
 
-**Cursor:**
-- Go to Settings > Agent > Tools & MCP > Add MCP Server
-- Use this config:
+Complete the OAuth flow when prompted.
+
+</details>
+
+<details>
+<summary><strong>Cursor</strong></summary>
+
+Go to **Settings > Agent > Tools & MCP > Add MCP Server** and add:
 
 ```json
-"mixpanel": {
+{
+  "mixpanel": {
     "command": "npx",
-    "args": [
-        "-y",
-        "@mixpanel/mcp-server"
-    ]
+    "args": ["-y", "@mixpanel/mcp-server"]
+  }
 }
 ```
 
-- Complete the OAuth flow in the browser when prompted
+Complete the OAuth flow in the browser when prompted.
 
-2. **Verify MCP Connection**: Ensure Mixpanel MCP tools are available (e.g., `Get-Projects`, `Run-Query`)
+</details>
 
-### Installing Skills
+<details>
+<summary><strong>Codex (OpenAI)</strong></summary>
 
-**Option 1: Manual Installation (Claude Code)**
+Add the MCP server to your `.agents/plugins/` configuration. See the [Codex docs](https://platform.openai.com/docs/codex) for MCP setup.
 
-Copy individual skills to your local skills directory:
+</details>
 
-```bash
-# Create skills directory if it doesn't exist
-mkdir -p ~/.claude/skills
+<details>
+<summary><strong>Other MCP Clients</strong></summary>
 
-# Copy a skill (example: create-report)
-cp -r plugins/mixpanel/skills/create-report ~/.claude/skills/
+Any client that supports the [Model Context Protocol](https://modelcontextprotocol.io/) can connect to `@mixpanel/mcp-server`. Refer to your client's MCP documentation.
 
-# Repeat for other skills you want to use
-```
+</details>
 
-Skills will automatically load in Claude Code. Test with `/create-report` or `/daily-brief`.
+### 2. Install Skills
 
-**Option 2: Clone and Reference**
-
-Clone this repository and reference skill workflows as needed:
+**Claude Code** — copy skills to your local skills directory:
 
 ```bash
-git clone https://github.com/rpatel05/mcp-marketplace.git
-cd mcp-marketplace/plugins/mixpanel/skills
+git clone https://github.com/rpatel05/mcp-skills-playground.git
+cp -r mcp-skills-playground/plugins/mixpanel/skills/daily-brief ~/.claude/skills/
 ```
 
-Use the SKILL.md files as templates for your own implementations.
+**Cursor** — reference skills from `.cursor-plugin/` or copy SKILL.md files into your workspace.
 
-**Option 3: For Teams**
+**For Teams** — fork this repo and customize skills for your team's workflows and naming conventions.
 
-Fork this repository and customize skills for your team's specific workflows and naming conventions.
-
----
-
-## Repository Structure
-
-```text
-.claude-plugin/
-  marketplace.json            # Marketplace metadata
-plugins/
-  mixpanel/
-    .claude-plugin/
-      plugin.json             # Plugin manifest
-    skills/
-      add-analytics-instrumentation/
-        SKILL.md              # Skill definition and workflow
-      analyze-board/
-        SKILL.md
-      analyze-experiment/
-        SKILL.md
-      analyze-feedback/
-        SKILL.md
-      analyze-report/
-        SKILL.md
-      audit-lexicon/
-        SKILL.md
-      compare-user-journeys/
-        SKILL.md
-      create-board/
-        SKILL.md
-      create-report/
-        SKILL.md
-      daily-brief/
-        SKILL.md
-      debug-replay/
-        SKILL.md
-      diff-intake/
-        SKILL.md
-      discover-analytics-patterns/
-        SKILL.md
-      discover-event-surfaces/
-        SKILL.md
-      discover-opportunities/
-        SKILL.md
-      instrument-events/
-        SKILL.md
-      monitor-experiments/
-        SKILL.md
-      replay-ux-audit/
-        SKILL.md
-      update-lexicon/
-        SKILL.md
-      weekly-brief/
-        SKILL.md
-```
-
----
-
-## How Skills Work
-
-Each skill is a markdown file (`SKILL.md`) that provides:
-- **Workflow instructions** for the AI assistant
-- **When to use** the skill
-- **Step-by-step execution** patterns
-- **Example interactions** and outputs
-- **Best practices** and common mistakes
-
-When you invoke a skill (e.g., `/daily-brief`), Claude reads the SKILL.md file and follows the workflow to use Mixpanel MCP tools appropriately.
-
----
-
-## Requirements
-
-- **MCP-compatible client** – Claude Code, Cursor, or Claude
-- **Mixpanel account** with API access
-- **Mixpanel MCP Server** – `@mixpanel/mcp-server` (installed via npm/npx)
-- **Node.js** – for running the MCP server
-
----
-
-## Testing Skills
-
-After installing a skill, test it with a simple invocation:
+### 3. Verify
 
 ```
 /daily-brief
 /create-report show me DAU for the last 7 days
-/analyze-board for board ID 12345
+/taxonomy
 ```
 
 If a skill doesn't work:
 1. Verify Mixpanel MCP server is connected (`/mcp` to check status)
 2. Ensure OAuth authentication completed successfully
-3. Check that the skill file exists in `~/.claude/skills/`
+3. Check that the skill file exists in your skills directory
+
+---
+
+## Mixpanel Plugin Skills
+
+### Core Analytics
+
+| Skill            | What it does                                                              |
+| ---------------- | ------------------------------------------------------------------------- |
+| `create-report`  | Creates Mixpanel reports (Insights, Funnels, Flows, etc.) from natural language |
+| `create-board`   | Builds boards from requirements, organizing reports into sections         |
+| `analyze-report` | Deep-dives a report to explain trends, anomalies, and drivers            |
+| `analyze-board`  | Reviews a board end-to-end, surfacing takeaways and concerns             |
+
+### Product Insights
+
+| Skill                    | What it does                                                              |
+| ------------------------ | ------------------------------------------------------------------------- |
+| `analyze-experiment`     | Designs A/B tests, monitors experiments, and interprets results          |
+| `monitor-experiments`    | Triages all active and recently completed experiments                    |
+| `analyze-feedback`       | Synthesizes customer feedback into themes                                |
+| `discover-opportunities` | Finds product opportunities across analytics, experiments, and replays   |
+| `compare-user-journeys`  | Compares two user groups side-by-side                                    |
+
+### Session Replay & Debugging
+
+| Skill             | What it does                                                              |
+| ----------------- | ------------------------------------------------------------------------- |
+| `debug-replay`    | Extracts reproduction steps from Session Replay                          |
+| `replay-ux-audit` | Synthesizes a ranked friction map across multiple replays                 |
+
+### Analytics Instrumentation
+
+| Skill                           | What it does                                                  |
+| ------------------------------- | ------------------------------------------------------------- |
+| `diff-intake`                   | Reads a PR/branch diff and outputs a structured change brief  |
+| `discover-event-surfaces`       | Lists candidate analytics events for PM prioritization        |
+| `discover-analytics-patterns`   | Maps existing tracking patterns in the repo                   |
+| `instrument-events`             | Builds instrumentation plan and JSON tracking plan            |
+| `add-analytics-instrumentation` | End-to-end instrumentation workflow in one pass               |
+
+Typical flow: `diff-intake` → `discover-event-surfaces` → `instrument-events`
+
+### Data Governance
+
+| Skill            | What it does                                                  |
+| ---------------- | ------------------------------------------------------------- |
+| `audit-lexicon`  | Reviews Lexicon for data quality issues and inconsistencies   |
+| `update-lexicon` | Bulk updates event/property descriptions and tags             |
+| `taxonomy`       | Generates and enforces event/property naming conventions      |
+
+### Briefings
+
+| Skill          | What it does                                                  |
+| -------------- | ------------------------------------------------------------- |
+| `daily-brief`  | Morning briefing of key changes across your Mixpanel instance |
+| `weekly-brief` | Weekly recap of trends, wins, and risks                       |
+
+---
+
+## Multi-Platform Support
+
+This repository includes manifests for multiple AI coding platforms:
+
+```text
+.claude-plugin/
+  marketplace.json          # Claude Code marketplace manifest
+.cursor-plugin/
+  marketplace.json          # Cursor marketplace manifest
+.agents/
+  plugins/
+    marketplace.json        # Codex / OpenAI agents manifest
+plugins/
+  mixpanel/
+    .claude-plugin/
+      plugin.json           # Claude Code plugin manifest
+    .cursor-plugin/
+      plugin.json           # Cursor plugin manifest
+    .codex-plugin/
+      plugin.json           # Codex plugin manifest
+    skills/
+      analyze-board/
+      analyze-experiment/
+      analyze-feedback/
+      analyze-report/
+      add-analytics-instrumentation/
+      audit-lexicon/
+      compare-user-journeys/
+      create-board/
+      create-report/
+      daily-brief/
+      debug-replay/
+      diff-intake/
+      discover-analytics-patterns/
+      discover-event-surfaces/
+      discover-opportunities/
+      instrument-events/
+      monitor-experiments/
+      replay-ux-audit/
+      taxonomy/
+      update-lexicon/
+      weekly-brief/
+```
+
+---
+
+## CI / CD
+
+Two GitHub Actions workflows keep the repo consistent:
+
+- **Auto Version Bump** — patches plugin versions across all platform manifests when a PR touching `plugins/` is merged
+- **Manifest Sync Check** — blocks PRs if `.claude-plugin`, `.cursor-plugin`, or `.codex-plugin` manifests have mismatched name, description, or version fields
 
 ---
 
 ## Contributing
 
-We welcome contributions! Whether it's a new skill, improvement, or bug fix:
-
 1. Fork this repo
-2. Create a new branch for your feature
-3. Follow the existing patterns in `plugins/mixpanel/skills/` for structure
-4. Submit a PR with a clear description of what the skill does and how to use it
+2. Create a branch for your feature
+3. Follow existing patterns in `plugins/mixpanel/skills/`
+4. Submit a PR — the manifest sync check will validate your changes
 
 ### Creating a New Skill
 
-1. Create a new directory under `plugins/mixpanel/skills/your-skill-name/`
-2. Add a `SKILL.md` file with frontmatter:
+1. Create `plugins/mixpanel/skills/your-skill-name/SKILL.md`
+2. Include frontmatter:
 
 ```markdown
 ---
 name: your-skill-name
 description: Brief description of what the skill does
 ---
-
-# Your Skill Name
-
-## When to Use
-
-...
-
-## Instructions
-
-...
 ```
 
 3. Test the skill locally before submitting
+
+---
+
+## Requirements
+
+- **MCP-compatible client** — Claude Code, Cursor, Codex, or any MCP client
+- **Mixpanel account** with API access
+- **Mixpanel MCP Server** — `@mixpanel/mcp-server` (via npx)
+- **Node.js** — for running the MCP server
 
 ---
 
@@ -281,5 +249,5 @@ MIT
 
 ## Support
 
-- **Issues**: [GitHub Issues](https://github.com/rpatel05/mcp-marketplace/issues)
+- **Issues**: [GitHub Issues](https://github.com/rpatel05/mcp-skills-playground/issues)
 - **Mixpanel**: [mixpanel.com](https://mixpanel.com)

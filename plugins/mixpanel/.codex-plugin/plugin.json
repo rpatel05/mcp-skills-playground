@@ -1,0 +1,47 @@
+{
+  "name": "mixpanel",
+  "version": "1.0.0",
+  "description": "Use Mixpanel like an expert — instrument analytics, discover product opportunities, analyze reports, create boards, manage experiments, govern data quality, and understand users",
+  "author": {
+    "name": "Mixpanel",
+    "email": "support@mixpanel.com",
+    "url": "https://mixpanel.com"
+  },
+  "homepage": "https://github.com/rpatel05/mcp-skills-playground",
+  "repository": "https://github.com/rpatel05/mcp-skills-playground",
+  "license": "MIT",
+  "keywords": [
+    "analytics",
+    "mixpanel",
+    "product-analytics",
+    "reports",
+    "boards",
+    "funnels",
+    "retention",
+    "session-replay",
+    "experiments",
+    "instrumentation",
+    "data-governance"
+  ],
+  "skills": "./skills/",
+  "mcpServers": "./.mcp.json",
+  "interface": {
+    "displayName": "Mixpanel",
+    "shortDescription": "Expert product analytics skills for Mixpanel",
+    "longDescription": "Comprehensive analysis, instrumentation, and data governance skills for Mixpanel. Covers reports, boards, experiments, session replays, user journeys, feedback analysis, analytics instrumentation workflows, and data governance via Lexicon.",
+    "category": "analytics",
+    "capabilities": [
+      "analytics-analysis",
+      "report-creation",
+      "experiment-analysis",
+      "session-replay",
+      "data-governance",
+      "instrumentation",
+      "user-journey-analysis",
+      "feedback-synthesis"
+    ],
+    "websiteURL": "https://mixpanel.com",
+    "brandColor": "#7856FF",
+    "defaultPrompt": "You can ask me to: analyze a report, create a board, review an experiment, watch session replays, instrument analytics in your code, audit your data governance, or generate a daily/weekly briefing."
+  }
+}

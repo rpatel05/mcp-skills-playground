@@ -1,0 +1,72 @@
+name: Manifest Sync Check
+
+on:
+  pull_request:
+    paths:
+      - 'plugins/**/.claude-plugin/**'
+      - 'plugins/**/.cursor-plugin/**'
+      - 'plugins/**/.codex-plugin/**'
+      - '.claude-plugin/**'
+      - '.cursor-plugin/**'
+      - '.agents/**'
+
+jobs:
+  sync-check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Check plugin manifests are in sync
+        run: |
+          exit_code=0
+
+          for plugin_dir in plugins/*/; do
+            plugin=$(basename "$plugin_dir")
+            claude="$plugin_dir.claude-plugin/plugin.json"
+            cursor="$plugin_dir.cursor-plugin/plugin.json"
+
+            if [ ! -f "$claude" ]; then
+              echo "::warning::Missing $claude"
+              continue
+            fi
+
+            if [ ! -f "$cursor" ]; then
+              echo "::error::$cursor missing — must mirror $claude"
+              exit_code=1
+              continue
+            fi
+
+            # Compare name, description, version
+            for field in name description version; do
+              claude_val=$(jq -r ".$field" "$claude")
+              cursor_val=$(jq -r ".$field" "$cursor")
+              if [ "$claude_val" != "$cursor_val" ]; then
+                echo "::error::$plugin: .$field mismatch — claude-plugin='$claude_val' vs cursor-plugin='$cursor_val'"
+                exit_code=1
+              fi
+            done
+          done
+
+          # Check root marketplace version references match plugin versions
+          for plugin_dir in plugins/*/; do
+            plugin=$(basename "$plugin_dir")
+            plugin_version=$(jq -r '.version' "$plugin_dir.claude-plugin/plugin.json" 2>/dev/null || echo "")
+            [ -z "$plugin_version" ] && continue
+
+            for root_manifest in \
+              ".claude-plugin/marketplace.json" \
+              ".cursor-plugin/marketplace.json"; do
+              if [ -f "$root_manifest" ]; then
+                root_version=$(jq -r --arg name "$plugin" '.plugins[] | select(.name == $name) | .version' "$root_manifest")
+                if [ -n "$root_version" ] && [ "$root_version" != "$plugin_version" ]; then
+                  echo "::error::$root_manifest lists $plugin@$root_version but plugin is at $plugin_version"
+                  exit_code=1
+                fi
+              fi
+            done
+          done
+
+          if [ $exit_code -eq 0 ]; then
+            echo "All manifests are in sync"
+          fi
+          exit $exit_code

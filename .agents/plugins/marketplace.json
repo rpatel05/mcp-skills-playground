@@ -1,0 +1,16 @@
+{
+  "plugins": [
+    {
+      "name": "mixpanel",
+      "version": "1.0.0",
+      "source": {
+        "source": "local",
+        "path": "./plugins/mixpanel"
+      },
+      "policy": {
+        "install": "auto",
+        "authentication": "optional"
+      }
+    }
+  ]
+}
